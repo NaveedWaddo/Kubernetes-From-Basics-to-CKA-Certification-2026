@@ -1,0 +1,21 @@
+first_name: Naveed
+height: 5.9
+roll_number: 10
+is_engineer: true
+payment_dues: null
+
+address: #dictionary
+  flat_number: 302
+  street: 30
+  status: true
+  contact:
+    phose: 932288883
+    email: naveed@gmail.com
+
+hobbies:
+  - singing
+  - dancing
+  - traveling
+  - sports:
+      - cricket
+      - football
