@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "my-pod-2"
+  name: my-pod-2
   labels:
     app: nginx
     environment: development
 spec:
   containers:
-    - name: nginx-container
+    - name: nginx
       image: nginx
       ports:
         - containerPort: 80
-    - name: sidecar-container
-      image: busybox
+    - name: sidecar
+      image: busy-box
       args: ["sleep", "3600"]
