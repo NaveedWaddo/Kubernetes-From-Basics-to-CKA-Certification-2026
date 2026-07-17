@@ -1,0 +1,13 @@
+apiVersion: v2
+name: app1-chart
+description: Multi-env NGINX web service with environment-specific values
+type: application
+version: 0.2.0
+appVersion: "1.22"
+home: https://www.youtube.com/@CloudWithVarJosh
+maintainers:
+  - name: Varun Joshi
+    email: cloudwithvarjosh@gmail.com
+keywords:
+  - nginx
+  - multi-environment
