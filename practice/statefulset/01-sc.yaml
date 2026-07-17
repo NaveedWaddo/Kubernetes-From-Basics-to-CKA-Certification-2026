@@ -1,0 +1,13 @@
+# 01-sc.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc-gp3
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true" # Sets this as the default storage class
+provisioner: ebs.csi.aws.com # CSI driver for provisioning EBS volumes
+parameters:
+  type: gp3 # Type of EBS volume
+volumeBindingMode: WaitForFirstConsumer # Wait until pod is scheduled before volume is provisioned
+reclaimPolicy: Delete # Delete the volume when PVC is deleted
+allowVolumeExpansion: true # Allows resizing the volume later

@@ -1,0 +1,63 @@
+# 03-mysql-sts.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: mysql-ha
+spec:
+  serviceName: mysql # Must match the headless service
+  replicas: 3 # We'll spin up 3 MySQL pods
+  podManagementPolicy: OrderedReady # Start pods one after another (recommended for DBs)
+  # Other valid options:
+  # - OrderedReady: (default) ensures each pod starts only after the previous one is Running and Ready.
+  # - Parallel: allows all pods to start or terminate at the same time (faster but not suitable for DBs requiring startup order).
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      terminationGracePeriodSeconds: 10 # Give time for clean shutdown
+      # This value defines how long Kubernetes waits before forcefully killing the container.
+      # Default: 30 seconds
+      # Set this based on how long your DB (e.g., MySQL, PostgreSQL) takes to flush buffers, close connections, or run shutdown hooks.
+      # Too low a value may lead to unclean shutdown and potential data corruption in write-heavy databases.
+      affinity:
+        podAntiAffinity: # Instructs the scheduler to avoid placing similar pods together based on topology
+          requiredDuringSchedulingIgnoredDuringExecution: # Hard rule: do not schedule unless anti-affinity condition is met
+            - labelSelector:
+                matchLabels:
+                  app: mysql # Target pods with the label 'app=mysql' — i.e., other pods in this StatefulSet
+              topologyKey: topology.kubernetes.io/zone # Define the failure domain — here, avoid scheduling in the same AZ
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "password123"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql # MySQL data directory
+  volumeClaimTemplates: # This section tells the StatefulSet to dynamically create a unique PVC for each pod.
+    # These PVCs follow a naming convention: <template-name>-<pod-name>.
+    # For example, pod mysql-0 will get a PVC named mysql-data-mysql-0.
+    - metadata:
+        name:
+          mysql-data # Base name of the PVC template.
+          # Each pod gets its own PVC prefixed with this name and suffixed with its ordinal index.
+      spec:
+        accessModes:
+          ["ReadWriteOncePod"] # Ensures the volume is mounted by only **one pod** at a time — and only while that pod is running.
+          # Prevents concurrent access across pods, which is critical for databases.
+        storageClassName:
+          ebs-sc-gp3 # Refers to the EBS-backed StorageClass we defined earlier.
+          # This SC uses gp3 volume type and supports features like dynamic provisioning and expansion.
+        resources:
+          requests:
+            storage:
+              5Gi # Requests 5Gi of persistent storage for each pod.
+              # Each volume is independently provisioned and isolated per pod.

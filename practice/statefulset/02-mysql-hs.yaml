@@ -1,0 +1,12 @@
+# 02-mysql-hs.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: mysql-ha
+spec:
+  clusterIP: None # Key: This makes it a headless service
+  selector:
+    app: mysql
+  ports:
+    - port: 3306 # MySQL default port
