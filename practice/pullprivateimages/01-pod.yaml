@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  namespace: app1-ns
+spec:
+  containers:
+    - name: python-cont
+      image: docker.io/naveed1123/app1:1.0.0
